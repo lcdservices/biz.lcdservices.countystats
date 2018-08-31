@@ -111,7 +111,12 @@ class CRM_Countystats_Selector_Search extends CRM_Core_Selector_Base implements 
     $whereClause = $this->whereClause($params);
     $this->_params = $params;
     
-    $sql = "SELECT cc.name as name, Count(ca.county_id) as c_count,  csp.name as state_name FROM civicrm_county cc LEFT JOIN civicrm_address ca ON cc.id = ca.county_id LEFT JOIN civicrm_contact ccont ON ccont.id = ca.contact_id LEFT JOIN civicrm_state_province csp ON csp.id = ca.state_province_id WHERE $whereClause GROUP BY ca.county_id";
+    $sql = "SELECT cc.name as name, Count(ccont.id) as c_count,  csp.name as state_name FROM civicrm_county cc 
+    LEFT JOIN civicrm_address ca ON cc.id = ca.county_id 
+    LEFT JOIN civicrm_contact ccont ON ccont.id = ca.contact_id 
+    LEFT JOIN civicrm_state_province csp ON csp.id = cc.state_province_id 
+    WHERE $whereClause 
+    GROUP BY cc.id";
     $this->_query = $sql;
   }
 
@@ -255,17 +260,33 @@ class CRM_Countystats_Selector_Search extends CRM_Core_Selector_Base implements 
    */
   public function whereClause(&$params) {
     $clauses = array();
-    
     $contactType = CRM_Utils_Array::value('contactType', $this->_queryParams);   
     $states = CRM_Utils_Array::value('states', $this->_queryParams);   
     $displayAll = CRM_Utils_Array::value('displayAll', $this->_queryParams);   
-    
-    if ($contactType) {
-      $clauses[] = " ccont.contact_type = '$contactType'";
+    $params = array();
+    if( $displayAll != 1){
+      if ($contactType && !in_array("any", $contactType) ) {
+        $typeClause = array();
+        foreach ($contactType as $key => $type) {
+          $types = explode('__', is_numeric($type) ? $key : $type, 2);    
+          $ctype = $types[0];
+          $contact_clauses = "( ccont.contact_type = '$ctype'";
+          // Add sub-type if specified
+          if (!empty($types[1])) { 
+            $stype = $types[1];
+            $contact_clauses .= " AND ccont.contact_sub_type LIKE '%" . CRM_Core_DAO::VALUE_SEPARATOR . $stype . CRM_Core_DAO::VALUE_SEPARATOR . "%'" . "";
+          }
+          $contact_clauses .= ")";
+          $typeClause[] = $contact_clauses;
+        }
+        $clauses[] = "(".(!empty($typeClause) ? implode(' OR ', $typeClause) : '(1)').")";
+      }
+      else{
+        $clauses[] = " ccont.contact_type IS NOT NULL";
+      }
     }
-    
     if ($states) {
-      $clauses[] = " ca.state_province_id = '$states'";
+      $clauses[] = " cc.state_province_id = '$states'";
     }
     return !empty($clauses) ? implode(' AND ', $clauses) : '(1)';
   }

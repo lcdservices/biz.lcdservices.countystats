@@ -124,20 +124,28 @@ class CRM_Countystats_Form_Search extends CRM_Core_Form_Search {
    */
   public function buildQuickForm() {
     parent::buildQuickForm();
+    $contactTypes = CRM_Contact_BAO_ContactType::getSelectElements();
+    if ($contactTypes) {
+      $this->add('select', 'contactType', ts('Contact Type(s)'), array('any' => 'Select') + $contactTypes, FALSE,
+        array('id' => 'contact_type', 'multiple' => 'multiple', 'class' => 'crm-select2', 'style' => 'width: 100%;')
+      );
+    }
     
-    $contactTypes = civicrm_api3('ContactType', 'get', array(
-      'sequential' => 1,
-    ));
-    $contactTypeList = array();
-    if( !empty($contactTypes['values']) ){
-      foreach($contactTypes['values'] as $contactType){
-        $contacttypeName = CRM_Utils_Array::value('name', $contactType);
-        $contactTypeList[$contacttypeName] = CRM_Utils_Array::value('label', $contactType);
+    $state_count = civicrm_api3('StateProvince', 'getcount', array('country_id' => 1228) );
+    $params = array(
+      'country_id' => 1228, //for United States only
+      'options' => array(
+        'limit' => $state_count,
+      ),
+    );
+    $states = civicrm_api3('StateProvince', 'get', $params);
+    $state_list = array();
+    if( !empty($states['values']) ){
+      foreach($states['values'] as $state){
+        $stateID = CRM_Utils_Array::value('id', $state);
+        $state_list[$stateID] = CRM_Utils_Array::value('name', $state);
       }
     }
-    $this->add('select', 'contactType', ts('Contact Type'), $contactTypeList);
-    $states = new CRM_Core_PseudoConstant;
-    $state_list = $states->stateProvince();
     $this->add('select', 'states', ts('Select State'), $state_list, TRUE);
     
     $this->add('advcheckbox', 'displayAll', ts('Display all counties'));
