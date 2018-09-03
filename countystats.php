@@ -145,13 +145,19 @@ function countystats_civicrm_preProcess($formName, &$form) {
 
 } // */
 
-/*
+/**
  * Implements hook_civicrm_navigationMenu().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
  *
-
 function countystats_civicrm_navigationMenu(&$menu) {
- 
-}
-*/
+  _countystats_civix_insert_navigation_menu($menu, 'Mailings', array(
+    'label' => E::ts('New subliminal message'),
+    'name' => 'mailing_subliminal_message',
+    'url' => 'civicrm/mailing/subliminal',
+    'permission' => 'access CiviMail',
+    'operator' => 'OR',
+    'separator' => 0,
+  ));
+  _countystats_civix_navigationMenu($menu);
+} // */

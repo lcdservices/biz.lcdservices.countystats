@@ -77,7 +77,7 @@ class CRM_Countystats_ExtensionUtil {
 
 }
 
-use CRM_countystats_ExtensionUtil as E;
+use CRM_Countystats_ExtensionUtil as E;
 
 /**
  * (Delegated) Implements hook_civicrm_config().
@@ -205,7 +205,7 @@ function _countystats_civix_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) 
 }
 
 /**
- * @return CRM_countystats_Upgrader
+ * @return CRM_Countystats_Upgrader
  */
 function _countystats_civix_upgrader() {
   if (!file_exists(__DIR__ . '/CRM/Countystats/Upgrader.php')) {

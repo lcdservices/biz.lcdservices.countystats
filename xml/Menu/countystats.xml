@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<menu>
-  <item>
-    <path>civicrm/custom/countystats</path>
-    <page_callback>CRM_Countystats_Form_Search</page_callback>
-    <title>Count contact for particular state based on county</title>
-    <access_arguments>access CiviCRM</access_arguments>
-  </item>
-</menu>

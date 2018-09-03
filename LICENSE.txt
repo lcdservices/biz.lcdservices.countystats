@@ -1,5 +1,5 @@
 Package: biz.lcdservices.countystats
-Copyright (C) 2018, deverma1680 <synapseindia.emp1680@synapseindia.com>
+Copyright (C) 2018, Zoyee <karun.anju11@gmail.com>
 Licensed under the GNU Affero Public License 3.0 (below).
 
 -------------------------------------------------------------------------------
