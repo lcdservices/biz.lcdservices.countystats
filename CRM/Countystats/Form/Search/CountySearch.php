@@ -66,7 +66,7 @@ class CRM_Countystats_Form_Search_CountySearch extends CRM_Contact_Form_Search_C
    *  - total: numeric
    */
   function summary() {
-    return NULL;
+    //return NULL;
     // return array(
     //   'summary' => 'This is a summary',
     //   'total' => 50.0,
@@ -107,7 +107,12 @@ class CRM_Countystats_Form_Search_CountySearch extends CRM_Contact_Form_Search_C
     WHERE      $where
     GROUP BY   cc.id
     ";
-  return $sql;
+    
+    $sql .= "ORDER BY cc.name asc";
+    if ( $rowcount > 0 && $offset >= 0 ) {
+        $sql .= " LIMIT $offset, $rowcount ";
+    }
+    return $sql;
   }
 
   /**
@@ -117,9 +122,9 @@ class CRM_Countystats_Form_Search_CountySearch extends CRM_Contact_Form_Search_C
    */
   function select() {
     return "
-      cc.name              as name,
-      Count(contact_a.id)  as c_count,
-      state_province.name  as state_name
+      cc.name               as name,
+      Count(contact_a.id)   as c_count,
+      state_province.name   as state_name
     ";
   }
  
@@ -210,7 +215,25 @@ class CRM_Countystats_Form_Search_CountySearch extends CRM_Contact_Form_Search_C
    * @return string, template path (findable through Smarty template path)
    */
   function templateFile() {
-    //return 'CRM/Contact/Form/Search/Custom.tpl';
+    return 'CRM/Countystats/Form/Search/Custom.tpl';
+  }
+  
+   /**
+   * Count of records that match the current input parameters.
+   *
+   * Used by pager.
+   */
+  public function count() {
+    $where = $this->where();
+    $from = $this->from();
+    $select = $this->select();
+    $sql = "
+    SELECT     $select $from
+    WHERE      $where
+    GROUP BY   cc.id
+    ";
+    $dao = CRM_Core_DAO::executeQuery($sql);
+    return $dao->N;
   }
 
   /**
@@ -220,6 +243,5 @@ class CRM_Countystats_Form_Search_CountySearch extends CRM_Contact_Form_Search_C
    * @return void
    */
   function alterRow(&$row) {
-    unset($row['action']);
   }
 }
